@@ -60,9 +60,9 @@ def main():
                         help = "year-month to start crawl from (e.g., 2006-01).")
     parser.add_argument("-e", "--end", type = str,
                         metavar = "year-month", default = '',
-                        help = "year-month to end crawl from (e.g., 2006-12).")
+                        help = "year-month to end crawl to (e.g., 2006-12). If empty, crawl to today.")
     parser.add_argument("-s", "--subreddits", default='',
-                        help="comma separated list of subreddits to collect")
+                        help="comma separated list of subreddits to collect (e.g., news,politics)")
     parser.add_argument("-p", "--posts", default=True, action="store_true",
                         help="Collect posts.")
     parser.add_argument('--no-posts', dest='posts', action='store_false',
