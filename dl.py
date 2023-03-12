@@ -5,13 +5,26 @@ import traceback
 from urllib.request import urlopen
 import zstandard
 
+
+import requests
+requests.packages.urllib3.util.connection.HAS_IPV6 = False
+
+import socket
+old_getaddrinfo = socket.getaddrinfo
+def new_getaddrinfo(*args, **kwargs):
+    responses = old_getaddrinfo(*args, **kwargs)
+    return [response
+            for response in responses
+            if response[0] == socket.AF_INET]
+socket.getaddrinfo = new_getaddrinfo
+
 def yield_lines(url):
     resp = urlopen(url)
     reader = zstandard.ZstdDecompressor(max_window_size=2**31).stream_reader(resp)
     buffer = ''
     while True:
         try:
-            chunk = reader.read(2**10).decode()
+            chunk = reader.read(2**10).decode('utf-8', 'ignore')
             if not chunk:
                 break
             lines = (buffer + chunk).split("\n")
