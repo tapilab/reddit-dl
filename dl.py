@@ -25,11 +25,12 @@ def yield_lines(url):
             break
     yield from buffer.split('\n')
         
-def fetch_by_subreddit(kind, handle, subreddits, month, year):
+def fetch_by_subreddit(kind, handle, subreddits, month, year, local_path):
     ct = 0
     lines = 0
-    for line in yield_lines("https://files.pushshift.io/reddit/%s/R%s_%s-%s.zst" % 
-                            (kind, 'S' if kind=='submissions' else 'C', year, month)):
+    prefix = local_path if 'file:///' + local_path else "https://files.pushshift.io/reddit"
+    for line in yield_lines("%s/%s/R%s_%s-%s.zst" % 
+                            (prefix, kind, 'S' if kind=='submissions' else 'C', year, month)):
         lines += 1
         try:
             if len(line.strip()) > 0:
@@ -71,6 +72,9 @@ def main():
                         help="Collect comments.")
     parser.add_argument('--no-comments', dest='comments', action='store_false',
                         help="Don't collect comments.")
+    parser.add_argument("-l", "--local-path", type = str,
+                        metavar = "FILE", default = None,
+                        help = "Rather than fetch from pushshift, extract from a local mirror specified by this path (e.g., ./reddit)")
 
 
     args = parser.parse_args()
@@ -97,12 +101,12 @@ def main():
         print('%s-%s' % (month, year))
         if args.posts:
             print('...fetching posts')
-            mp, tp = fetch_by_subreddit('submissions', post_handle, subreddits, month, year)
+            mp, tp = fetch_by_subreddit('submissions', post_handle, subreddits, month, year, args.local_path)
             matched_posts += mp
             total_posts += tp
         if args.comments:
             print('...fetching comments')
-            mc, tc = fetch_by_subreddit('comments', comment_handle, subreddits, month, year)
+            mc, tc = fetch_by_subreddit('comments', comment_handle, subreddits, month, year, args.local_path)
             matched_comments += mc
             total_comments += tc
         print('\nin total, matched %d/%d posts and %d/%d comments\n' % 
