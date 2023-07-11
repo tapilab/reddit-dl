@@ -41,7 +41,7 @@ def yield_lines(url):
 def fetch_by_subreddit(kind, handle, subreddits, month, year, local_path):
     ct = 0
     lines = 0
-    prefix = local_path if 'file:///' + local_path else "https://files.pushshift.io/reddit"
+    prefix = 'file:///' + local_path if local_path else "https://files.pushshift.io/reddit"
     for line in yield_lines("%s/%s/R%s_%s-%s.zst" % 
                             (prefix, kind, 'S' if kind=='submissions' else 'C', year, month)):
         lines += 1
